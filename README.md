@@ -651,6 +651,9 @@ So in the end, the current GIF limitations for *instant* MD5 collisions are:
 - the images have to be the same dimensions
 - after 11 minutes, both files will show the same image
 
+An easy shortcut to normalize still GIF images is to make them animation frames of the same image,
+then we can use a [script](scripts/gif.py) to re-use or compute FastColl blocks to make a file pair that shows each of them.
+
 Examples:
 
 <img alt='identical prefix collisions' src=examples/collision1.gif width=350/> ⟷
@@ -684,22 +687,6 @@ Examples: [tweakPNG.exe](examples/collision1.exe) (GUI) ⟷ [fastcoll.exe](examp
 Here is a [script](scripts/pe.py) to generate instant MD5 collisions of Windows Executables.
 
 <img alt='collision of fastcoll.exe (CLI) and tweakPNG(GUI)' src=pics/pe.png width=500/>
-
-**Runtime R6002 - floating point not loaded**:
-
-MSVC libraries check sections for permissions.
-This check can be [patched out](http://www.manhunter.ru/underground/65_runtime_error_r6002_floating_point_not_loaded.html): patch this
-``` x86
-C1E81F shr   eax,01F
-F7D0   not   eax
-83E001 and   eax,1
-```
-to set `eax` to 1 instead.
-
-If you apply collisions on packed files,
-(such as UPX-ed files, to prevent specific PDF keywords like `endstream` to be visible in cleartext),
-the offsets will change, and this may cause the packer to fail to restore the right attributes.
-So you may want to patch out that code before UPX-ing the executable and colliding it.
 
 ### MP4 and others
 
@@ -1163,6 +1150,14 @@ turning your files into [HTML polyglots](examples/polyglot.html) to easily share
 
 <img alt='HTML payload to generate extra colliding files' src=pics/polyglot.png width=600/>
 
+The [issue 19](https://github.com/angea/pocorgtfo#0x19) of 'PoC or GTFO' is such a pileup **and** polyglot,
+combining a 80-page document generated with PDFLaTeX, a PDF viewer for Windows,
+a PNG diagram and a short 'collision' MP4 video by [KidMoGraph](https://www.kidmograph.com/)
+with an HTML payload to generate the other files from the PDF release
+(and a ZIP archive too):
+
+<img alt='Diagram of the issue 19 of PoC or GTFO, a polyglot and pileup.' src=pics/pocorgtfo19.png width=700/>
+
 
 ## Use cases
 
@@ -1369,6 +1364,9 @@ Class    | N        |          |         |           | x
 1. Atom/Box is Shattered-compatible when using 64bit lengths.
 1. For better compatibility, ZIP needs two UniColl for a complete archive, and this collisions depend on both files contents.
 
+## Test files
+
+[Here](examples/free) are free (copyright-free, PII-free) test colliding pairs.
 
 # References
 
@@ -1418,3 +1416,5 @@ Thanks to Rafał Hirsz for his permanent help on JavaScript.
 Unless you actively check for malformations or collisions blocks in files, don't use MD5!
 
 It's not a cryptographic hash, it's a toy function!
+
+<!-- pandoc -s -f gfm -t html README.md -o README.html -->
